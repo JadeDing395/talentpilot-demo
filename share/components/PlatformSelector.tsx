@@ -198,39 +198,6 @@ export default function PlatformSelector({ selected, onChange, loginByPlatform, 
         })}
       </div>
 
-      {/* 开发中渠道:展示产品扩展蓝图 + 合规分级,灰显代表 roadmap(逐步打磨、未来更广覆盖) */}
-      <div className="mt-4">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">即将支持 · 开发中</h4>
-          <span className="text-[11px] text-slate-400">🟢 公开可采　🟡 登录态限速　🔴 高 ToS 风险</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          {[
-            { name: "Bilibili", dot: "🟡", tag: "动画/教程创作者" },
-            { name: "站酷 ZCOOL", dot: "🟡", tag: "国内动效/设计" },
-            { name: "Behance", dot: "🟢", tag: "motion 设计" },
-            { name: "Pixiv", dot: "🟡", tag: "插画/二次元" },
-            { name: "GitHub", dot: "🟢", tag: "技术/技术美术" },
-            { name: "Google Scholar", dot: "🟢", tag: "学术/研究人才" },
-            { name: "LinkedIn 领英", dot: "🔴", tag: "资深/海外履历" },
-            { name: "脉脉", dot: "🔴", tag: "职场社招" },
-          ].map((ch) => (
-            <div
-              key={ch.name}
-              className="border border-dashed border-slate-300 rounded-xl px-3 py-2.5 bg-slate-50/70 select-none"
-              title="开发中,敬请期待"
-            >
-              <div className="flex items-center justify-between gap-1">
-                <span className="text-sm font-medium text-slate-400">{ch.name}</span>
-                <span className="text-[10px] leading-none">{ch.dot}</span>
-              </div>
-              <div className="text-[10px] text-slate-400 mt-0.5 truncate">{ch.tag}</div>
-              <span className="text-[9px] text-slate-400 mt-1.5 inline-block px-1.5 py-0.5 bg-slate-200/70 rounded">开发中</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {loginModalFor && (
         <LoginQrModal
           open={true}

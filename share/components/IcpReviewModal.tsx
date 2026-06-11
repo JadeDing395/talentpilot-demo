@@ -425,39 +425,6 @@ export default function IcpReviewModal({ icp, onApply, onClose }: Props) {
             </div>
           </div>
 
-          {/* 规划中渠道:完整渠道矩阵 + 合规分级,灰显代表 roadmap(当前已接入 ArtStation/微博/小红书,其余规划中) */}
-          <div>
-            <label className={labelClass}>更多推荐渠道(规划中 · 按岗位智能匹配)</label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
-              {[
-                { name: "Bilibili", dot: "🟡", reason: "动画/教程视频创作者" },
-                { name: "站酷 ZCOOL", dot: "🟡", reason: "国内动效/设计师" },
-                { name: "Behance", dot: "🟢", reason: "motion / 动画设计" },
-                { name: "Pixiv", dot: "🟡", reason: "插画 / 二次元" },
-                { name: "GitHub", dot: "🟢", reason: "技术 / 技术美术" },
-                { name: "Google Scholar", dot: "🟢", reason: "学术 / 研究人才" },
-                { name: "LinkedIn 领英", dot: "🔴", reason: "资深 / 海外履历" },
-                { name: "脉脉", dot: "🔴", reason: "职场社招" },
-              ].map((ch) => (
-                <div
-                  key={ch.name}
-                  className="border border-dashed border-slate-300 rounded-lg px-2.5 py-2 bg-slate-100/60"
-                  title="规划中,暂未接入采集"
-                >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-medium text-slate-500">{ch.name}</span>
-                    <span className="text-[10px] leading-none">{ch.dot}</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">{ch.reason}</div>
-                  <span className="text-[9px] text-slate-400 mt-1 inline-block px-1 py-0.5 bg-slate-200/70 rounded">规划中</span>
-                </div>
-              ))}
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1.5">
-              🟢 公开可采　🟡 登录态限速　🔴 高 ToS 风险(走官方 API / 人工导入)　·　当前已接入 ArtStation / 微博 / 小红书
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/70">
               <div className="text-xs font-medium text-slate-700 mb-2">输入溯源</div>

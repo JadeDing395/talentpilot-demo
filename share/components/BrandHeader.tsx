@@ -13,7 +13,6 @@ interface Props {
 const NAV_ITEMS: { href: string; label: string }[] = [
   { href: "/scan", label: "扫描" },
   { href: "/candidates", label: "候选人库" },
-  { href: "/insights", label: "数据洞察" },
 ];
 
 export default function BrandHeader({ actions }: Props) {
