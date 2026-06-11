@@ -1,0 +1,35 @@
+diff --git a/node_modules/clone-deep/utils.js b/node_modules/clone-deep/utils.js
+index d2a7570..74178f1 100644
+--- a/node_modules/clone-deep/utils.js
++++ b/node_modules/clone-deep/utils.js
+@@ -1,21 +1,11 @@
+ 'use strict';
+ 
+-/**
+- * Lazily required module dependencies
+- */
+-
+-var utils = require('lazy-cache')(require);
+-var fn = require;
+-
+-require = utils;
+-require('is-plain-object', 'isObject');
+-require('shallow-clone', 'clone');
+-require('kind-of', 'typeOf');
+-require('for-own');
+-require = fn;
+-
+-/**
+- * Expose `utils`
+- */
+-
+-module.exports = utils;
++// Patched (see VERSION.md): the original used `lazy-cache` which broke
++// on modern Node, causing `utils.typeOf is not a function` in
++// merge-deep → puppeteer-extra-plugin → StealthPlugin().
++module.exports = {
++  typeOf: require('kind-of'),
++  isObject: require('is-plain-object'),
++  clone: require('shallow-clone'),
++  forOwn: require('for-own')
++};

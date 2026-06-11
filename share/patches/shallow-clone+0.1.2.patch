@@ -1,0 +1,21 @@
+diff --git a/node_modules/shallow-clone/utils.js b/node_modules/shallow-clone/utils.js
+index f6fb967..1ce4eaf 100644
+--- a/node_modules/shallow-clone/utils.js
++++ b/node_modules/shallow-clone/utils.js
+@@ -1,10 +1,8 @@
+ 'use strict';
+ 
+-var utils = require('lazy-cache')(require);
+-var fn = require;
+-require = utils;
+-require('is-extendable', 'isObject');
+-require('mixin-object', 'mixin');
+-require('kind-of', 'typeOf');
+-require = fn;
+-module.exports = utils;
++// Patched (see VERSION.md): same lazy-cache breakage as clone-deep.
++module.exports = {
++  isObject: require('is-extendable'),
++  mixin: require('mixin-object'),
++  typeOf: require('kind-of')
++};

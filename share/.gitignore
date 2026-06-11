@@ -1,0 +1,55 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Puppeteer 持久化用户目录（含登录态 cookie）
+# 注:现在登录态存在用户主目录下的项目外 profile 目录,这里保留旧路径兜底
+/.chrome-profile
+/.chrome-profile-weibo
+/.chrome-profile-xhs
+/.chrome-profile*
+
+# 业务数据 —— 含真实候选人信息,绝不入库。app 会在缺失时自动创建空库(lib/db.ts)
+# 忽略整个 data/ 只留 .gitkeep 占位(db.json / db-*.json / usage / *.before-merge 备份等全挡)
+/data/*
+!/data/.gitkeep
+/dev.db
+/prisma/*.db
