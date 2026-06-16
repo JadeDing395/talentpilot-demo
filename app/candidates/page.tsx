@@ -10,6 +10,7 @@ import AiSettingsModal, { loadAiConfig } from "@/components/AiSettingsModal";
 import BrandHeader from "@/components/BrandHeader";
 import TagSearchSelect from "@/components/TagSearchSelect";
 import { AiClientConfig } from "@/lib/scoring-config";
+import { getOrCreateUserId, USER_ID_HEADER } from "@/lib/userIdentity";
 import { Users, Star, CircleCheck, TrendingUp, Search, Sparkles, BadgeCheck } from "lucide-react";
 
 interface ListData {
@@ -73,12 +74,21 @@ export default function CandidatesPage() {
   const stageMap = Object.fromEntries(data.stages.map((s) => [s.id, s]));
   const tagMap = Object.fromEntries(data.tags.map((t) => [t.id, t]));
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const params = new URLSearchParams();
     if (stageId) params.set("stageId", stageId);
     if (tagId) params.set("tagId", tagId);
     if (favoriteOnly) params.set("favorite", "true");
-    window.location.href = `/api/export?${params}`;
+    const res = await fetch(`/api/export?${params}`, {
+      headers: { [USER_ID_HEADER]: getOrCreateUserId() },
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `candidates_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleToggleFavorite = async (c: Candidate) => {
