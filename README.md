@@ -18,16 +18,36 @@
 
 ### 系统要求
 
-- macOS(M1 / Intel 均可)
-- Node.js 20+(没装的话先去 [nodejs.org](https://nodejs.org/) 下载安装)
-- 第一次启动需要联网下载 Chrome(puppeteer 用,约 200MB)
+- macOS（M1 / Intel 均可）
+- Node.js 20+（没装的话先去 [nodejs.org](https://nodejs.org/) 下载安装）
+- 第一次启动需要联网下载 Chrome（puppeteer 用，约 200MB）
+
+---
+
+### ⚠️ 第一步：解除 macOS 安全限制（必做，只需一次）
+
+从网上下载的文件，macOS 会自动拦截。按以下步骤解除：
+
+1. 打开「**访达（Finder）**」，找到解压后的 `TalentPilot-demo` 文件夹
+2. 打开「**终端**」（在启动台搜索「终端」或「Terminal」）
+3. 在终端里输入以下内容（注意最后有一个空格）：
+   ```
+   xattr -d com.apple.quarantine 
+   ```
+4. 不要按回车，先把 `start.command` 文件**从 Finder 拖进终端窗口**，路径会自动填入
+5. 然后按回车，没有报错即成功
+6. 现在可以**双击 `start.command`** 正常启动了
+
+> 如果上面步骤搞不定，也可以：打开「系统设置」→「隐私与安全性」→ 滚到底部 → 找到 `start.command 已被阻止` → 点「仍要打开」
+
+---
 
 ### 启动步骤
 
-1. **双击 `start.command`**(首次 macOS 可能提示"未验证开发者",请右键点击它 → 选「打开」,弹窗确认即可)
-2. 首次会自动 `npm install`(约 2-3 分钟,会下载 Chrome,请耐心等)
-3. 终端窗口看到 `服务地址: http://localhost:3000` 即启动完成
-4. 浏览器打开 [http://localhost:3000](http://localhost:3000) — 会自动跳到扫描页
+1. 双击 `start.command`（完成上面的解除步骤后）
+2. 首次会自动 `npm install`（约 2-3 分钟，会下载 Chrome，请耐心等）
+3. 安装完成后浏览器会**自动打开** `http://localhost:3001`
+4. 以后每次双击启动，浏览器会自动弹出，无需手动输地址
 
 ### 首次使用
 
@@ -92,7 +112,7 @@
 
 | 现象 | 解决 |
 |---|---|
-| 双击 `start.command` 提示"无法验证开发者" | 右键 → 选「打开」→ 弹窗点「打开」确认一次,以后双击就行 |
+| 双击 `start.command` 提示"无法验证" | 见上方「⚠️ 第一步」，用终端拖拽命令解除一次即可 |
 | 终端显示「找不到 node」 | 先去 [nodejs.org](https://nodejs.org/) 装 Node.js 20+ |
 | `npm install` 卡死 | 网络问题。可以尝试切换 npm 源:`npm config set registry https://registry.npmmirror.com` |
 | 扫描时报"登录态失效" | 到扫描渠道卡片点右侧「重新登录」小链接,重新扫码 |
