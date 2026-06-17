@@ -4,6 +4,19 @@
 
 ---
 
+## 🚀 下载后第一步（macOS 必做）
+
+下载解压后，在终端粘贴这一行命令，**回车即可解除 macOS 拦截**，然后双击 `start.command` 启动：
+
+```bash
+xattr -dr com.apple.quarantine ~/Downloads/talentpilot-demo-main && open ~/Downloads/talentpilot-demo-main/start.command
+```
+
+> 如果解压到其他位置，把路径中的 `~/Downloads/talentpilot-demo-main` 替换成实际路径即可。
+> 打开「终端」方法：按 `Command + 空格` 搜索「终端」或「Terminal」。
+
+---
+
 ## 这能做什么
 
 - 一次填表,在 **ArtStation / 微博 / 小红书** 三平台并发搜索画师 / 原画师 / 插画师
