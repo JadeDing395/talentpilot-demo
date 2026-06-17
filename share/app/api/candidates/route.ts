@@ -10,7 +10,10 @@ export async function GET(req: NextRequest) {
   const tagId = searchParams.get("tagId");
   const available = searchParams.get("available");
   const favorite = searchParams.get("favorite");
+  const recent = searchParams.get("recent");
   const platform = searchParams.get("platform"); // weibo | xiaohongshu | all
+  const limit = Math.min(9999, Math.max(1, Number(searchParams.get("limit")) || 20));
+  const offset = Math.max(0, Number(searchParams.get("offset")) || 0);
 
   const db = readDB(userId);
   let candidates = db.candidates;
@@ -28,11 +31,25 @@ export async function GET(req: NextRequest) {
   if (tagId) candidates = candidates.filter((c) => c.tagIds.includes(Number(tagId)));
   if (available === "true") candidates = candidates.filter((c) => c.available);
   if (favorite === "true") candidates = candidates.filter((c) => c.favorite);
+  if (recent === "true") {
+    const cutoff = Date.now() - 7 * 86400000;
+    candidates = candidates.filter((c) => new Date(c.createdAt).getTime() > cutoff);
+  }
   if (platform && platform !== "all") {
     candidates = candidates.filter((c) => c.source === platform);
   }
 
-  return NextResponse.json({ candidates, stages: db.stages, tags: db.tags });
+  const total = candidates.length;
+  const pagedCandidates = candidates.slice(offset, offset + limit);
+
+  return NextResponse.json({
+    candidates: pagedCandidates,
+    total,
+    limit,
+    offset,
+    stages: db.stages,
+    tags: db.tags,
+  });
 }
 
 export async function POST(req: NextRequest) {

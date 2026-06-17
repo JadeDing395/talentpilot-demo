@@ -172,7 +172,7 @@ function dedupeTextLines(input: string): string {
 }
 
 async function waitForUsefulText(page: Awaited<ReturnType<typeof jdSession.getPage>>) {
-  await delay(2500, 3800);
+  await delay(1500, 2500);
   await page.waitForFunction(
     () => (document.body?.innerText?.trim().length ?? 0) > 80,
     { timeout: 5000 },
@@ -184,7 +184,7 @@ async function scrollListingPage(page: Awaited<ReturnType<typeof jdSession.getPa
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
     const step = Math.max(window.innerHeight * 0.85, 640);
     let previousHeight = 0;
-    for (let pass = 0; pass < 10; pass += 1) {
+    for (let pass = 0; pass < 5; pass += 1) {
       const height = document.body.scrollHeight;
       let y = 0;
       while (y < height) {
@@ -193,13 +193,13 @@ async function scrollListingPage(page: Awaited<ReturnType<typeof jdSession.getPa
         y += step;
       }
       window.scrollTo(0, document.body.scrollHeight);
-      await sleep(1000);
+      await sleep(800);
       const nextHeight = document.body.scrollHeight;
       if (nextHeight <= previousHeight || nextHeight <= height) break;
       previousHeight = nextHeight;
     }
   }).catch(() => {});
-  await delay(600, 1200);
+  await delay(400, 800);
 }
 
 async function captureSnapshotChunk(page: Awaited<ReturnType<typeof jdSession.getPage>>): Promise<SnapshotChunk> {
@@ -321,7 +321,7 @@ async function collectListingSnapshot(url: string): Promise<PageSnapshot> {
     const chunks: SnapshotChunk[] = [];
     const seen = new Set<string>();
 
-    for (let pageIndex = 0; pageIndex < 8; pageIndex += 1) {
+    for (let pageIndex = 0; pageIndex < 5; pageIndex += 1) {
       await scrollListingPage(page);
 
       for (let expandPass = 0; expandPass < 4; expandPass += 1) {

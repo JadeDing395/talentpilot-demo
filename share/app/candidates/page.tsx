@@ -10,16 +10,20 @@ import AiSettingsModal, { loadAiConfig } from "@/components/AiSettingsModal";
 import BrandHeader from "@/components/BrandHeader";
 import TagSearchSelect from "@/components/TagSearchSelect";
 import { AiClientConfig } from "@/lib/scoring-config";
+import { getOrCreateUserId, USER_ID_HEADER } from "@/lib/userIdentity";
 import { Users, Star, CircleCheck, TrendingUp, Search, Sparkles, BadgeCheck } from "lucide-react";
 
 interface ListData {
   candidates: Candidate[];
   stages: Stage[];
   tags: Tag[];
+  total: number;
 }
 
+const PAGE_SIZE = 20;
+
 export default function CandidatesPage() {
-  const [data, setData] = useState<ListData>({ candidates: [], stages: [], tags: [] });
+  const [data, setData] = useState<ListData>({ candidates: [], stages: [], tags: [], total: 0 });
   const [q, setQ] = useState("");
   const [stageId, setStageId] = useState("");
   const [tagId, setTagId] = useState("");
@@ -29,6 +33,7 @@ export default function CandidatesPage() {
   const [platformFilter, setPlatformFilter] = useState<"all" | Platform>("all");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const resetAllFilters = () => {
     setQ("");
@@ -45,40 +50,58 @@ export default function CandidatesPage() {
   useEffect(() => { setAiConfig(loadAiConfig()); }, []);
   const aiConfigured = !!aiConfig.apiKey;
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (offset = 0) => {
+    const append = offset > 0;
+    if (append) setLoadingMore(true);
+    else setLoading(true);
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (stageId) params.set("stageId", stageId);
     if (tagId) params.set("tagId", tagId);
     if (favoriteOnly) params.set("favorite", "true");
     if (availableOnly) params.set("available", "true");
+    if (recentOnly) params.set("recent", "true");
     if (platformFilter !== "all") params.set("platform", platformFilter);
-    const res = await fetch(`/api/candidates?${params}`);
-    const json = await res.json();
-    let candidates = json.candidates as Candidate[];
-    // 「本周新增」客户端过滤（API 暂未支持 recentDays 参数）
-    if (recentOnly) {
-      const cutoff = Date.now() - 7 * 86400000;
-      candidates = candidates.filter((c) => new Date(c.createdAt).getTime() > cutoff);
+    params.set("limit", String(PAGE_SIZE));
+    params.set("offset", String(offset));
+    try {
+      const res = await fetch(`/api/candidates?${params}`);
+      const json = await res.json();
+      const candidates = json.candidates as Candidate[];
+      setData((prev) => ({
+        candidates: append ? [...prev.candidates, ...candidates] : candidates,
+        stages: json.stages,
+        tags: json.tags,
+        total: Number(json.total) || 0,
+      }));
+    } finally {
+      if (append) setLoadingMore(false);
+      else setLoading(false);
     }
-    setData({ ...json, candidates });
-    setLoading(false);
   }, [q, stageId, tagId, favoriteOnly, availableOnly, recentOnly, platformFilter]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(0);
   }, [fetchData]);
 
   const stageMap = Object.fromEntries(data.stages.map((s) => [s.id, s]));
   const tagMap = Object.fromEntries(data.tags.map((t) => [t.id, t]));
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const params = new URLSearchParams();
     if (stageId) params.set("stageId", stageId);
     if (tagId) params.set("tagId", tagId);
     if (favoriteOnly) params.set("favorite", "true");
-    window.location.href = `/api/export?${params}`;
+    const res = await fetch(`/api/export?${params}`, {
+      headers: { [USER_ID_HEADER]: getOrCreateUserId() },
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `candidates_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleToggleFavorite = async (c: Candidate) => {
@@ -87,7 +110,7 @@ export default function CandidatesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ favorite: !c.favorite }),
     });
-    fetchData();
+    fetchData(0);
   };
 
   const handleRating = async (c: Candidate, rating: number) => {
@@ -96,7 +119,14 @@ export default function CandidatesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rating }),
     });
-    fetchData();
+    fetchData(0);
+  };
+
+  const loadedCount = data.candidates.length;
+  const hasMore = loadedCount < data.total;
+  const loadMore = () => {
+    if (loading || loadingMore || !hasMore) return;
+    void fetchData(loadedCount);
   };
 
   return (
@@ -191,7 +221,7 @@ export default function CandidatesPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <PlatformKpi
               label="候选人总数"
-              value={data.candidates.length}
+              value={data.total}
               indicatorColor="#0f172a"
               icon={<Users className="w-4 h-4" />}
               active={platformFilter === "all" && !favoriteOnly && !availableOnly && !recentOnly}
@@ -267,7 +297,9 @@ export default function CandidatesPage() {
             </button>
 
             <span className="text-xs text-zinc-400 ml-auto">
-              筛选结果 <span className="text-zinc-700 font-medium tabular-nums">{data.candidates.length}</span> 人
+              已加载 <span className="text-zinc-700 font-medium tabular-nums">{loadedCount}</span>
+              <span className="mx-1">/</span>
+              共 <span className="text-zinc-700 font-medium tabular-nums">{data.total}</span> 人
             </span>
           </div>
 
@@ -430,6 +462,24 @@ export default function CandidatesPage() {
               </tbody>
             </table>
           )}
+          {!loading && data.candidates.length > 0 && (
+            <div className="px-5 py-4 border-t border-zinc-100 flex items-center justify-between gap-3">
+              <span className="text-xs text-zinc-400">
+                已加载 <span className="text-zinc-700 font-medium tabular-nums">{loadedCount}</span> / 共{" "}
+                <span className="text-zinc-700 font-medium tabular-nums">{data.total}</span> 人
+              </span>
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-4 py-2 text-sm rounded-lg border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingMore ? "加载中..." : "加载更多"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
@@ -438,7 +488,7 @@ export default function CandidatesPage() {
           stages={data.stages}
           tags={data.tags}
           onClose={() => setShowModal(false)}
-          onSaved={() => { setShowModal(false); fetchData(); }}
+          onSaved={() => { setShowModal(false); fetchData(0); }}
         />
       )}
 
